@@ -3,356 +3,318 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>爵士樂大師之路 - The Jazz Journey v7.1</title>
-    
+    <title>爵士樂大師之路 v10.0 - 極致演出回報</title>
     <script src="https://accounts.google.com/gsi/client" async defer></script>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=DotGothic16&display=swap');
         
         body {
             font-family: 'DotGothic16', monospace; background-color: #000c18;
-            background-image: radial-gradient(circle at 50% 30%, #0f2040 0%, #000c18 70%);
             color: #e0c097; margin: 0; padding: 20px; display: flex; flex-direction: column;
             align-items: center; min-height: 100vh; justify-content: center;
         }
-        
+
         .jazz-window {
             background-color: #000000; border: 4px solid #d4af37; border-radius: 8px; padding: 20px;
             box-shadow: inset 0 0 0 2px #000, inset 0 0 0 4px #d4af37; 
-            width: 100%; max-width: 800px; margin-bottom: 20px; box-sizing: border-box; position: relative;
+            width: 100%; max-width: 850px; margin-bottom: 20px; box-sizing: border-box; position: relative;
         }
 
-        h1, h2, h3 { margin-top: 0; text-align: center; color: #ffff00; text-shadow: 2px 2px 0px #aa5500; }
-        
-        /* 月曆傳送門 */
-        .calendar-portal {
-            position: absolute; right: -80px; top: 100px; width: 60px; text-align: center; cursor: pointer; text-decoration: none;
-        }
-        .calendar-icon { width: 50px; height: 50px; background: #fff; border: 3px solid #d4af37; border-radius: 4px; position: relative; margin: 0 auto; overflow: hidden; }
-        .calendar-icon::before { content: ""; position: absolute; top: 0; left: 0; right: 0; height: 12px; background: #ff5555; border-bottom: 2px solid #d4af37; }
-        #calendar-date-text { position: absolute; width: 100%; top: 15px; left: 0; font-size: 22px; color: #000; font-weight: bold; text-align: center; }
-
-        /* 入口畫面 */
-        #intro-screen { text-align: center; width: 100%; max-width: 600px; }
-        .scene-container { position: relative; height: 160px; margin: 40px 0; border-bottom: 4px dashed #555; overflow: hidden; }
+        /* 1. 入口動畫 */
+        .scene-container { position: relative; height: 160px; margin: 20px 0; border-bottom: 4px dashed #555; overflow: hidden; width: 100%; }
         #musician-img { position: absolute; left: 10%; bottom: 10px; transition: left 2.5s ease-in-out, opacity 0.5s ease; z-index: 2; }
         #stage-img { position: absolute; right: 15%; bottom: 10px; z-index: 1; }
-        
-        .btn-container { display: flex; justify-content: center; gap: 10px; margin-top: 20px; }
-        .start-btn { 
-            background-color: transparent; color: #fff; border: 2px dashed #fff; padding: 15px 30px; 
-            font-family: 'DotGothic16', monospace; font-size: 24px; cursor: pointer; 
-            animation: blink 1.5s infinite; flex-grow: 1; position: relative; 
-        }
-        .quick-btn { 
-            background-color: #d4af37; color: #000; border: 2px solid #fff; width: 100px; 
-            font-family: 'DotGothic16', monospace; cursor: pointer; font-weight: bold; 
-        }
+
+        .btn-container { display: flex; justify-content: center; align-items: stretch; gap: 10px; margin-top: 20px; }
+        .start-btn { background: transparent; color: #fff; border: 2px dashed #fff; padding: 15px 30px; font-family: 'DotGothic16'; font-size: 24px; cursor: pointer; animation: blink 1.5s infinite; flex-grow: 1; position: relative; overflow: hidden; }
+        .quick-btn { background: #d4af37; color: #000; border: 2px solid #fff; width: 100px; font-family: 'DotGothic16'; font-size: 18px; cursor: pointer; display: flex; align-items: center; justify-content: center; font-weight: bold; transition: 0.2s; }
         #google-signin-overlay { position: absolute; top: 0; left: 0; width: 100%; height: 100%; opacity: 0.01; z-index: 10; cursor: pointer; }
 
-        @keyframes blink { 0%, 100% { opacity: 1; } 50% { opacity: 0.4; } }
+        /* 2. 世界地圖 */
+        #world-map-picker { width: 100%; height: 350px; background-color: #001a33; position: relative; border: 2px solid #334455; margin-bottom: 15px; overflow: hidden; cursor: crosshair; }
+        .map-grid-overlay { position: absolute; top: 0; left: 0; width: 100%; height: 100%; z-index: 2; pointer-events: none; background-image: linear-gradient(rgba(255,255,255,0.1) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,0.1) 1px, transparent 1px); background-size: 30px 30px; }
+        .city-marker-new { position: absolute; width: 14px; height: 14px; background: #ff5555; border: 2px solid #fff; border-radius: 50%; transform: translate(-50%, -50%); box-shadow: 0 0 10px #ff0000; z-index: 3; animation: pulse 1.5s infinite; }
+        .city-marker-saved { position: absolute; width: 16px; height: 16px; background: #d4af37; border: 2px solid #fff; border-radius: 50%; transform: translate(-50%, -50%); box-shadow: 0 0 10px #d4af37; z-index: 4; cursor: pointer; transition: 0.2s; }
+        .city-marker-saved:hover { transform: translate(-50%, -50%) scale(1.5); background: #ffff00; }
+        .marker-label { position: absolute; top: 15px; left: -20px; background: rgba(0,0,0,0.8); color: #fff; font-size: 12px; padding: 2px 6px; border-radius: 4px; white-space: nowrap; pointer-events: none; border: 1px solid #d4af37; }
 
-        /* 專案選擇/建置畫面 */
-        #tour-manager-ui, #tour-builder-ui { display: none; }
-        .tour-item { 
-            background: #111; border: 2px solid #333; padding: 15px; margin-bottom: 10px; 
-            cursor: pointer; transition: 0.2s; display: flex; justify-content: space-between; align-items: center;
-        }
-        .tour-item:hover { border-color: #d4af37; background: #1a1a1a; }
+        /* 3. 酒館地圖 */
+        #tavern-map { width: 100%; height: 400px; background-color: #1a0f00; position: relative; border: 4px solid #4a3a2a; overflow: hidden; background-image: linear-gradient(45deg, #221500 25%, transparent 25%, transparent 75%, #221500 75%, #221500), linear-gradient(45deg, #221500 25%, transparent 25%, transparent 75%, #221500 75%, #221500); background-size: 60px 60px; background-position: 0 0, 30px 30px; }
+        .tavern-zone { position: absolute; background: rgba(0,0,0,0.85); border: 2px solid #d4af37; color: #fff; text-align: center; min-width: 90px; transition: border-color 0.2s; user-select: none; }
+        .tavern-zone:hover { border-color: #ffff00; }
+        .drag-handle { background: #332211; color: #aaa; font-size: 10px; cursor: grab; padding: 2px; border-bottom: 1px dashed #d4af37; display: flex; justify-content: center; align-items: center; }
+        .drag-handle:active { cursor: grabbing; background: #d4af37; color: #000; }
+        .node-content { padding: 8px 12px; cursor: pointer; }
+        .node-content:hover { background: rgba(212,175,55,0.2); }
 
-        /* 建置表格樣式 */
-        .task-row { 
-            background: #111; border: 1px dashed #444; padding: 10px; margin-bottom: 10px;
-            display: grid; grid-template-columns: 2fr 1.2fr 0.8fr 1fr 40px; gap: 8px; align-items: center;
-        }
-        input, select, textarea { 
-            background: #000; color: #fff; border: 1px solid #333; padding: 5px; 
-            font-family: 'DotGothic16', monospace; font-size: 16px; 
-        }
+        /* 4. 細項與工作區 */
+        .subtask-item { background: #111; border: 1px dashed #555; padding: 10px; margin-bottom: 10px; display: flex; justify-content: space-between; align-items: center; }
+        #timer-display, #rest-timer-display { font-size: 80px; text-align: center; color: #fff; margin: 10px 0; letter-spacing: 5px; }
+        
+        /* 側台備忘錄 */
+        #parking-lot-container { display: none; margin-top: 20px; border-top: 2px dashed #444; padding-top: 15px; }
 
-        /* 主畫面 */
-        #game-ui { display: none; opacity: 0; transition: opacity 0.8s; }
-        .status-bar { display: flex; justify-content: space-around; font-size: 1.2em; border-bottom: 2px dashed #fff; padding-bottom: 10px; margin-bottom: 15px; }
-        .btn { background: #000; color: #fff; border: 2px solid #fff; padding: 12px; cursor: pointer; width: 100%; margin-top: 10px; text-align: left; font-family: 'DotGothic16', monospace; }
+        /* 通用元件 */
+        .btn { background: #000; color: #fff; border: 2px solid #fff; padding: 12px; cursor: pointer; width: 100%; margin-top: 10px; font-family: 'DotGothic16'; }
         .btn:hover { border-color: #ffff00; color: #ffff00; }
-        #timer-display { font-size: 80px; text-align: center; color: #fff; margin: 10px 0; letter-spacing: 5px; }
+        .btn-small { background: transparent; color: #d4af37; border: 1px solid #d4af37; padding: 5px 10px; cursor: pointer; font-family: 'DotGothic16'; }
+        .btn-small:hover { background: #d4af37; color: #000; }
+        .input-group { margin-bottom: 15px; text-align: left; }
+        input, select, textarea { width: 100%; background: #111; color: #fff; border: 1px solid #444; padding: 8px; box-sizing: border-box; font-family: 'DotGothic16'; }
+        
+        .page { display: none; }
+        .active { display: block; }
+        @keyframes pulse { 0%, 100% { transform: translate(-50%, -50%) scale(1); } 50% { transform: translate(-50%, -50%) scale(1.3); } }
+        @keyframes blink { 0%, 100% { opacity: 1; } 50% { opacity: 0.4; } }
     </style>
 </head>
 <body>
 
-    <div id="intro-screen" class="jazz-window">
-        <h1>THE JAZZ JOURNEY<br><span style="font-size: 24px; color: #888;">爵士樂大師之路</span></h1>
+    <div id="intro-screen" class="jazz-window page active">
+        <h1 style="color: #ffff00;">THE JAZZ JOURNEY<br><span style="font-size: 24px; color: #888;">爵士樂大師之路</span></h1>
         <div id="g_id_onload" data-client_id="777879557726-kjm4c6nlt9ibpi5mjk0uuvuqja3uisf1.apps.googleusercontent.com" data-callback="handleCredentialResponse"></div>
         <div class="scene-container">
-            <svg id="musician-img" viewBox="0 0 32 32" width="80" height="80">
-                <rect x="12" y="14" width="8" height="10" fill="#222" /><rect x="11" y="4" width="10" height="10" fill="#4d3319" /><rect x="12" y="10" width="8" height="2" fill="#000" /><rect x="18" y="12" width="12" height="2" fill="#d4af37" /><rect x="28" y="10" width="2" height="6" fill="#d4af37" /><rect x="12" y="24" width="3" height="6" fill="#111" /><rect x="17" y="24" width="3" height="6" fill="#111" />
-            </svg>
-            <svg id="stage-img" viewBox="0 0 40 40" width="100" height="100">
-                <rect x="18" y="10" width="4" height="30" fill="#555" /><circle cx="20" cy="8" r="4" fill="#aaa" /><rect x="12" y="38" width="16" height="2" fill="#333" />
-            </svg>
+            <svg id="musician-img" viewBox="0 0 32 32" width="80" height="80"><rect x="12" y="14" width="8" height="10" fill="#222"/><rect x="11" y="4" width="10" height="10" fill="#4d3319"/><rect x="18" y="12" width="12" height="2" fill="#d4af37"/><rect x="12" y="24" width="3" height="6" fill="#111"/><rect x="17" y="24" width="3" height="6" fill="#111"/></svg>
+            <svg id="stage-img" viewBox="0 0 40 40" width="100" height="100"><rect x="18" y="10" width="4" height="30" fill="#555"/><circle cx="20" cy="8" r="4" fill="#aaa"/></svg>
         </div>
         <div class="btn-container">
-            <button class="start-btn">▶ 下達演出指令
-                <div id="google-signin-overlay"><div class="g_id_signin" data-type="standard" data-width="400"></div></div>
-            </button>
-            <button class="quick-btn" onclick="fastEnter()">直接<br>開演</button>
+            <button class="start-btn">▶ 巡演開始<div id="google-signin-overlay"><div class="g_id_signin" data-type="standard"></div></div></button>
+            <button class="quick-btn" onclick="fastEnter()">直接<br>演出</button>
         </div>
     </div>
 
-    <div id="tour-manager-ui" class="jazz-window">
-        <h2>📜 巡演地圖 (Tour Map)</h2>
-        <div id="tour-list-container" style="max-height: 300px; overflow-y: auto; margin-bottom: 20px;"></div>
-        <button class="btn" onclick="showTourBuilder()" style="border-color: #d4af37; color: #d4af37;">+ 籌備新的巡演專案</button>
-    </div>
-
-    <div id="tour-builder-ui" class="jazz-window">
-        <h2>🗺️ 籌備新巡演</h2>
-        <label>🎤 巡演專案名稱：</label>
-        <input type="text" id="new-tour-name" placeholder="例如：2026 花蓮群募計畫" style="width: 100%; margin-bottom: 20px;">
-        <h3>曲目清單 (工作細項)</h3>
-        <div id="builder-task-container"></div>
-        <button class="btn-small" onclick="addTaskRow()" style="margin: 10px 0; color: #55ffff; background:none; border: 1px dashed #55ffff; cursor:pointer;">+ 增加細項</button>
-        <div class="btn-container">
-            <button class="btn" onclick="saveNewTour()" style="background: #d4af37; color: #000;">完成建置</button>
-            <button class="btn" onclick="showTourManager()">取消</button>
+    <div id="tour-setup" class="jazz-window page">
+        <h2>🗺️ 1. 世界版圖：規劃或接續巡演</h2>
+        <div id="world-map-picker" onclick="markNewLocation(event)">
+            <svg viewBox="0 0 800 400" preserveAspectRatio="none" style="position:absolute; top:0; left:0; width:100%; height:100%; z-index:1; opacity: 0.8;"><path d="M 50,50 L 250,50 L 300,150 L 200,200 L 150,300 L 80,250 Z" fill="#2d4a3e" stroke="#3d6a4e" stroke-width="2"/><path d="M 220,220 L 320,200 L 280,380 L 240,380 Z" fill="#2d4a3e" stroke="#3d6a4e" stroke-width="2"/><path d="M 380,50 L 750,50 L 750,200 L 650,280 L 500,200 L 400,150 Z" fill="#2d4a3e" stroke="#3d6a4e" stroke-width="2"/><path d="M 380,180 L 500,180 L 450,350 L 380,280 Z" fill="#2d4a3e" stroke="#3d6a4e" stroke-width="2"/><path d="M 680,300 L 780,280 L 750,380 L 650,350 Z" fill="#2d4a3e" stroke="#3d6a4e" stroke-width="2"/></svg>
+            <div class="map-grid-overlay"></div>
+            <div style="position: absolute; top: 10px; left: 10px; color: #ffff00; font-size: 12px; z-index: 5; pointer-events: none; background:rgba(0,0,0,0.5); padding:5px;">💡 點擊「金色星星」進入專案，或「空白陸地」建立新據點。</div>
+        </div>
+        <div style="border: 2px dashed #334455; padding: 15px; background: #000c18;">
+            <h3 style="margin-top:0; color:#55ffff;">✚ 建立新巡演據點</h3>
+            <div class="input-group"><label>巡演專案名稱：</label><input type="text" id="tour-name-v9"></div>
+            <div class="input-group"><label>新據點座標：</label><input type="text" id="tour-loc" readonly style="color: #ff5555;"></div>
+            <button class="btn" onclick="createNewTour()" style="background:#d4af37; color:#000;">確認建立並進入酒館配置 ▶</button>
         </div>
     </div>
 
-    <div id="game-ui">
-        <div class="jazz-window">
-            <a href="https://afroisgood.github.io/" target="_blank" class="calendar-portal">
-                <div class="calendar-icon"><div id="calendar-date-text">--</div></div>
-                <span style="font-size: 10px; color:#d4af37;">JAZZ 365</span>
-            </a>
-            <div id="active-tour-info" style="color: #d4af37; font-size: 1.2em; border-bottom: 1px solid #333; padding-bottom: 5px; margin-bottom: 15px;">正在巡演：<span id="current-tour-name">未選擇</span></div>
-            <div id="scroll-ui">
-                <label>🎯 選擇演出曲目 (Task)：</label>
-                <select id="task-selector" style="width: 100%; margin-bottom: 15px;"></select>
-                <div id="task-detail-info" style="font-size: 0.9em; color: #888; margin-bottom: 10px;"></div>
-            </div>
-            <div id="timer-display">25:00</div>
-            <div id="action-buttons">
-                <div id="idle-btns">
-                    <button class="btn" onclick="startWork()" style="color:#ffff00; border-color:#ffff00;">🎷 Showtime! 開始演出</button>
-                    <button class="btn" onclick="showTourManager()" style="border-color: #888;">切換巡演專案</button>
-                </div>
-                <div id="working-btns" style="display:none;">
-                    <button class="btn" onclick="finishWork(true)" style="color:#ffff00; border-color:#ffff00;">滿堂彩！(提早結束)</button>
-                    <button class="btn" onclick="finishWork(false)" style="color:#ff5555; border-color:#ff5555;">演出翻車 (放棄)</button>
-                </div>
+    <div id="pub-setup" class="jazz-window page">
+        <h2 id="pub-title">🍺 2. 酒館據點配置</h2>
+        <div id="tavern-map"></div>
+        <div style="margin-top:20px; background:#111; padding:15px; border:1px solid #333;">
+            <div style="display:flex; gap:5px; flex-wrap:wrap;">
+                <input type="text" id="category-input" placeholder="大項目名稱..." style="flex:2;">
+                <select id="category-icon" style="flex:1;"><option value="🎷">🎷 薩克斯風</option><option value="🎸">🎸 吉他</option><option value="🥃">🥃 威士忌</option><option value="📻">📻 收音機</option></select>
+                <select id="category-zone" style="flex:1;"><option value="舞台 Stage">舞台</option><option value="吧檯 Bar">吧檯</option><option value="後台 Backstage">後台</option></select>
+                <button onclick="addCategory()" class="btn" style="flex:1; margin-top:0; background:#d4af37; color:#000;">放置</button>
             </div>
         </div>
-        <div class="jazz-window">
-            <h2>📜 演出紀錄</h2>
-            <div id="history-list" style="max-height: 200px; overflow-y: auto;"></div>
+        <button class="btn" onclick="showWorldMap()">返回世界選址</button>
+    </div>
+
+    <div id="detail-setup" class="jazz-window page">
+        <h2 id="category-title" style="color:#55ffff;">📌 細項建置區</h2>
+        <div style="background:#111; padding:15px; border:1px solid #333; margin-bottom:20px;">
+            <label style="color:#d4af37;">新增工作細項：</label>
+            <input type="text" id="subtask-name" placeholder="細項名稱 (例: 撰寫第一段草稿)" style="margin-bottom:10px;">
+            <button class="btn" onclick="addSubtask()" style="border-color:#55ffff; color:#55ffff; margin-top:0;">+ 加入細項清單</button>
         </div>
+        <h3>📜 目前細項清單</h3>
+        <div id="subtask-list-container" style="min-height: 100px;"></div>
+        <button class="btn" onclick="showPage('pub-setup')">返回酒館地圖</button>
+    </div>
+
+    <div id="game-ui" class="jazz-window page">
+        <h2 style="color:#ff5555;">🔴 LIVE RECORDING</h2>
+        <div style="text-align:center; font-size:1.2em; color:#d4af37; margin-bottom:10px;">
+            正在演奏：<span id="playing-subtask-name" style="color:#fff;"></span>
+        </div>
+        
+        <div id="timer-display">25:00</div>
+        
+        <div id="parking-lot-container">
+            <label style="color:#55ffff; font-size:14px;">💭 側台備忘錄 (靈感停車場)：</label>
+            <p style="font-size:10px; color:#888; margin:0 0 5px 0;">腦中突然冒出與當下無關的雜事、靈感先丟這，清空大腦繼續演奏！</p>
+            <textarea id="parking-lot-text" rows="3" placeholder="例如：記得回信給主辦單位..."></textarea>
+        </div>
+
+        <div id="action-btns" style="display:flex; gap:10px; margin-top:20px;">
+            <button class="btn" onclick="startTimer()" style="color:#ffff00; border-color:#ffff00;">🎷 Showtime! (開始計時)</button>
+            <button class="btn" onclick="showPage('detail-setup')" style="border-color:#888;">返回細項</button>
+        </div>
+        <div id="working-btns" style="display:none; margin-top:20px;">
+            <button class="btn" onclick="endPerformance()" style="color:#ffff00; border-color:#ffff00;">滿堂彩！(進入結算)</button>
+            <button class="btn" onclick="showPage('detail-setup')" style="color:#ff5555; border-color:#ff5555;">放棄本次演出 (返回)</button>
+        </div>
+    </div>
+
+    <div id="report-ui" class="jazz-window page">
+        <h2 style="color:#d4af37;">📝 演出狀態回報 (Gig Report)</h2>
+        <p style="text-align:center; color:#888; font-size:14px;">這些紀錄未來將同步至你的專屬 Google Docs</p>
+        
+        <div class="input-group">
+            <label>🎷 Groove 狀態 (專注度評分)：</label>
+            <select id="report-groove">
+                <option value="In the Pocket">🔥🔥🔥 In the Pocket (完美心流)</option>
+                <option value="Keeping Time" selected>🔥🔥 Keeping Time (穩扎穩打)</option>
+                <option value="Dragging">🔥 Dragging (頻頻掉拍)</option>
+            </select>
+        </div>
+        <div class="input-group">
+            <label>推進狀態：</label>
+            <select id="report-progress">
+                <option value="✅ 任務完結">✅ 這首曲子搞定了 (任務完結)</option>
+                <option value="🔁 需安可" selected>🔁 還需安可 (需要再來一個番茄鐘)</option>
+            </select>
+        </div>
+        <div class="input-group">
+            <label>演出筆記 (Session Notes)：</label>
+            <textarea id="report-notes" rows="4" placeholder="記錄這次產出了什麼？遇到什麼瓶頸？..."></textarea>
+        </div>
+        
+        <button class="btn" onclick="saveReportAndRest()" style="color:#55ffff; border-color:#55ffff;">儲存紀錄並進入 ☕ Take Five (休息)</button>
+        <button class="btn" onclick="saveReportAndReturn()" style="border-color:#888;">儲存並返回細項清單</button>
+    </div>
+
+    <div id="rest-ui" class="jazz-window page">
+        <h2 style="color:#55ffff;">☕ TAKE FIVE</h2>
+        <p style="text-align:center; color:#ccc;">喝杯水，伸個懶腰。大師也需要讓肌肉放鬆。</p>
+        <div id="rest-timer-display" style="color:#55ffff;">05:00</div>
+        <button class="btn" onclick="endRestEarly()" style="border-color:#888;">精神百倍！提早返回舞台</button>
     </div>
 
     <script>
-        // === 全域音效函數：經典 The Lick ===
-        function playTheLick() {
-            try {
-                const ctx = new (window.AudioContext || window.webkitAudioContext)();
-                const now = ctx.currentTime;
-                // D4, E4, F4, G4, E4, C4, D4
-                const notes = [
-                    {f: 293.66, d: 0.15}, {f: 329.63, d: 0.15}, {f: 349.23, d: 0.15}, {f: 392.00, d: 0.15},
-                    {f: 329.63, d: 0.30}, {f: 261.63, d: 0.15}, {f: 293.66, d: 0.50}
-                ];
-                let startTime = now;
-                notes.forEach(note => {
-                    const osc = ctx.createOscillator();
-                    const gain = ctx.createGain();
-                    osc.type = 'triangle';
-                    osc.frequency.setValueAtTime(note.f, startTime);
-                    gain.gain.setValueAtTime(0, startTime);
-                    gain.gain.linearRampToValueAtTime(0.1, startTime + 0.05);
-                    gain.gain.linearRampToValueAtTime(0, startTime + note.d);
-                    osc.connect(gain); gain.connect(ctx.destination);
-                    osc.start(startTime); osc.stop(startTime + note.d);
-                    startTime += note.d;
-                });
-            } catch(e) { console.log("Audio Error:", e); }
-        }
-
-        let tours = JSON.parse(localStorage.getItem('jazzTours')) || [];
-        let currentTourIndex = -1;
+        let tours = JSON.parse(localStorage.getItem('jazzToursData')) || [];
+        let currentTourIndex = -1; let currentCatIndex = -1; let tempLoc = null;
         let timerInterval, timeLeft = 25 * 60;
+        let restInterval, restTimeLeft = 5 * 60;
+        const tavernZones = ["舞台 Stage", "酒吧 Bar", "鋼琴區 Piano", "觀眾席 Lounge", "後台 Backstage"];
 
-        document.getElementById('calendar-date-text').innerText = new Date().getDate();
-
-        // 登入與進場：確保調用音效
-        function handleCredentialResponse(response) { 
-            const payload = decodeJwtResponse(response.credential);
-            playTheLick(); 
-            enterStage(); 
-        }
+        function playTheLick() { try { const ctx = new (window.AudioContext || window.webkitAudioContext)(); const now = ctx.currentTime; const notes = [{f:293.66,d:0.15},{f:329.63,d:0.15},{f:349.23,d:0.15},{f:392,d:0.15},{f:329.63,d:0.3},{f:261.63,d:0.15},{f:293.66,d:0.5}]; let start = now; notes.forEach(n => { const o = ctx.createOscillator(); const g = ctx.createGain(); o.type = 'triangle'; o.frequency.setValueAtTime(n.f, start); g.gain.setValueAtTime(0, start); g.gain.linearRampToValueAtTime(0.1, start+0.05); g.gain.linearRampToValueAtTime(0, start+n.d); o.connect(g); g.connect(ctx.destination); o.start(start); o.stop(start+n.d); start += n.d; }); } catch(e) {} }
         
-        function fastEnter() { 
-            playTheLick(); 
-            showTourManager(); 
-        }
+        function handleCredentialResponse() { playTheLick(); document.querySelector('.btn-container').style.display = 'none'; document.getElementById('musician-img').style.left = '65%'; setTimeout(() => { document.getElementById('musician-img').style.opacity = '0'; setTimeout(() => showWorldMap(), 500); }, 2500); }
+        function fastEnter() { playTheLick(); showWorldMap(); }
+        function showPage(id) { document.querySelectorAll('.page').forEach(p => p.classList.remove('active')); document.getElementById(id).classList.add('active'); }
 
-        function showTourManager() {
-            document.getElementById('intro-screen').style.display = 'none';
-            document.getElementById('tour-builder-ui').style.display = 'none';
-            document.getElementById('game-ui').style.display = 'none';
-            document.getElementById('tour-manager-ui').style.display = 'block';
-            renderTourList();
-        }
+        /* 地圖邏輯 (省略與 v9.6 完全相同的函數，只列出核心調用) */
+        function showWorldMap() { showPage('tour-setup'); renderWorldMap(); }
+        function renderWorldMap() { const map = document.getElementById('world-map-picker'); document.querySelectorAll('.city-marker-saved').forEach(e => e.remove()); tours.forEach((tour, i) => { const m = document.createElement('div'); m.className = 'city-marker-saved'; m.style.left = tour.loc.x + '%'; m.style.top = tour.loc.y + '%'; m.innerHTML = `<span class="marker-label">${tour.name}</span>`; m.onclick = (e) => { e.stopPropagation(); enterExistingTour(i); }; map.appendChild(m); }); }
+        function markNewLocation(e) { const map = document.getElementById('world-map-picker'); const rect = map.getBoundingClientRect(); const x = ((e.clientX - rect.left) / rect.width) * 100, y = ((e.clientY - rect.top) / rect.height) * 100; let m = document.getElementById('new-city-marker'); if(!m) { m = document.createElement('div'); m.id = 'new-city-marker'; m.className = 'city-marker-new'; map.appendChild(m); } m.style.left = x + '%'; m.style.top = y + '%'; tempLoc = { x: x.toFixed(1), y: y.toFixed(1) }; document.getElementById('tour-loc').value = `LAT:${tempLoc.y} / LON:${tempLoc.x}`; }
+        function createNewTour() { const name = document.getElementById('tour-name-v9').value; if(!name || !tempLoc) return alert("請點擊地圖並填寫名稱！"); tours.push({ name: name, loc: tempLoc, categories: [] }); currentTourIndex = tours.length - 1; saveData(); openTavern(); }
+        function enterExistingTour(index) { currentTourIndex = index; openTavern(); }
 
-        function enterStage() {
-            document.querySelector('.btn-container').style.display = 'none';
-            document.getElementById('musician-img').style.left = '65%';
-            setTimeout(() => { showTourManager(); }, 2500);
-        }
+        /* 酒館邏輯 */
+        function openTavern() { document.getElementById('pub-title').innerText = `🍺 ${tours[currentTourIndex].name} - 酒館內部`; showPage('pub-setup'); renderTavernNodes(); }
+        function addCategory() { const name = document.getElementById('category-input').value; const icon = document.getElementById('category-icon').value; const zone = document.getElementById('category-zone').value; if(!name) return; tours[currentTourIndex].categories.push({ name, icon, zone, x: 40+Math.random()*20, y: 40+Math.random()*20, subtasks: [] }); saveData(); renderTavernNodes(); document.getElementById('category-input').value = ''; }
+        function renderTavernNodes() { const map = document.getElementById('tavern-map'); map.innerHTML = ''; tours[currentTourIndex].categories.forEach((cat, i) => { const node = document.createElement('div'); node.className = 'tavern-zone'; node.style.left = cat.x + '%'; node.style.top = cat.y + '%'; node.innerHTML = `<div class="drag-handle">🖐️</div><div class="node-content" onclick="openCategoryDetail(${i})"><span style="font-size:24px;">${cat.icon||'🎵'}</span><br>${cat.name}</div>`; map.appendChild(node); makeDraggable(node, i); }); }
+        function makeDraggable(el, idx) { let p1=0, p2=0, p3=0, p4=0; el.querySelector('.drag-handle').onmousedown = dragMouseDown; function dragMouseDown(e) { e.preventDefault(); p3 = e.clientX; p4 = e.clientY; document.onmouseup = closeDragElement; document.onmousemove = elementDrag; } function elementDrag(e) { e.preventDefault(); p1 = p3 - e.clientX; p2 = p4 - e.clientY; p3 = e.clientX; p4 = e.clientY; el.style.top = (el.offsetTop - p2) + "px"; el.style.left = (el.offsetLeft - p1) + "px"; } function closeDragElement() { document.onmouseup = null; document.onmousemove = null; const parent = document.getElementById('tavern-map'); tours[currentTourIndex].categories[idx].x = (el.offsetLeft / parent.offsetWidth) * 100; tours[currentTourIndex].categories[idx].y = (el.offsetTop / parent.offsetHeight) * 100; saveData(); } }
 
-        // 專案管理
-        function renderTourList() {
-            const container = document.getElementById('tour-list-container');
-            container.innerHTML = tours.length ? '' : '<p style="text-align:center; color:#666;">尚未有巡演計畫</p>';
-            tours.forEach((tour, index) => {
-                const div = document.createElement('div');
-                div.className = 'tour-item';
-                div.innerHTML = `<span>🎵 ${tour.name} (${tour.tasks.length} 首曲目)</span><button onclick="deleteTour(event, ${index})" style="color:red; background:none; border:none; cursor:pointer; font-family:DotGothic16;">✖</button>`;
-                div.onclick = () => selectTour(index);
-                container.appendChild(div);
-            });
-        }
+        /* 細項邏輯 */
+        function openCategoryDetail(index) { currentCatIndex = index; const cat = tours[currentTourIndex].categories[index]; document.getElementById('category-title').innerText = `📌 ${cat.icon||''} ${cat.name} (${cat.zone})`; renderSubtaskList(); showPage('detail-setup'); }
+        function addSubtask() { const name = document.getElementById('subtask-name').value; if(!name) return alert("請輸入名稱"); tours[currentTourIndex].categories[currentCatIndex].subtasks.push({ name: name, imp: '⭐⭐⭐' }); saveData(); renderSubtaskList(); document.getElementById('subtask-name').value = ''; }
+        function renderSubtaskList() { const container = document.getElementById('subtask-list-container'); container.innerHTML = ''; const tasks = tours[currentTourIndex].categories[currentCatIndex].subtasks; if(tasks.length===0){ container.innerHTML='<div style="color:#666;">無細項</div>'; return;} tasks.forEach((t, i) => { const div = document.createElement('div'); div.className = 'subtask-item'; div.innerHTML = `<div><b style="color:#fff;">${t.name}</b></div><button class="btn-small" onclick="enterGameUI(${i})">▶ 演出</button>`; container.appendChild(div); }); }
 
-        function showTourBuilder() {
-            document.getElementById('tour-manager-ui').style.display = 'none';
-            document.getElementById('tour-builder-ui').style.display = 'block';
-            document.getElementById('builder-task-container').innerHTML = '';
-            document.getElementById('new-tour-name').value = '';
-            addTaskRow();
-        }
-
-        function addTaskRow() {
-            const container = document.getElementById('builder-task-container');
-            const row = document.createElement('div');
-            row.className = 'task-row';
-            row.innerHTML = `
-                <input type="text" placeholder="細項名稱" class="t-name">
-                <input type="date" class="t-date">
-                <select class="t-diff"><option value="1">⭐</option><option value="2">⭐⭐</option><option value="3">⭐⭐⭐</option><option value="4">⭐⭐⭐⭐</option><option value="5">⭐⭐⭐⭐⭐</option></select>
-                <select class="t-urg"><option value="慢板">慢板</option><option value="中板">中板</option><option value="急板">急板</option></select>
-                <button onclick="this.parentElement.remove()" style="color:red; background:none; border:none; cursor:pointer;">✖</button>
-            `;
-            container.appendChild(row);
-        }
-
-        function saveNewTour() {
-            const name = document.getElementById('new-tour-name').value;
-            if(!name) return alert("請輸入巡演名稱");
-            const taskRows = document.querySelectorAll('.task-row');
-            let tasks = [];
-            taskRows.forEach(row => {
-                const tName = row.querySelector('.t-name').value;
-                if(tName) {
-                    tasks.push({
-                        name: tName,
-                        date: row.querySelector('.t-date').value,
-                        diff: row.querySelector('.t-diff').value,
-                        urg: row.querySelector('.t-urg').value
-                    });
-                }
-            });
-            if(tasks.length === 0) return alert("請至少增加一個演出細項");
-            tours.push({ name, tasks });
-            localStorage.setItem('jazzTours', JSON.stringify(tours));
-            showTourManager();
-        }
-
-        function deleteTour(e, index) {
-            e.stopPropagation();
-            if(confirm("確定要燒毀這場巡演計畫嗎？")) {
-                tours.splice(index, 1);
-                localStorage.setItem('jazzTours', JSON.stringify(tours));
-                renderTourList();
-            }
-        }
-
-        function selectTour(index) {
-            currentTourIndex = index;
-            const tour = tours[index];
-            document.getElementById('tour-manager-ui').style.display = 'none';
-            document.getElementById('game-ui').style.display = 'block';
-            document.getElementById('game-ui').style.opacity = '1';
-            document.getElementById('current-tour-name').innerText = tour.name;
+        /* 工作區與新系統邏輯 */
+        function enterGameUI(subIndex) {
+            document.getElementById('playing-subtask-name').innerText = tours[currentTourIndex].categories[currentCatIndex].subtasks[subIndex].name;
+            clearInterval(timerInterval); timeLeft = 25 * 60; updateTimerDisplay();
             
-            const selector = document.getElementById('task-selector');
-            selector.innerHTML = '';
-            tour.tasks.forEach((t, i) => {
-                const opt = document.createElement('option');
-                opt.value = i;
-                opt.innerText = `${t.urg} | ${t.name} (⭐${t.diff})`;
-                selector.appendChild(opt);
-            });
-            updateTaskDetail();
-            selector.onchange = updateTaskDetail;
+            // 顯示按鈕，隱藏停車場直到開始
+            document.getElementById('action-btns').style.display = 'flex'; 
+            document.getElementById('working-btns').style.display = 'none';
+            document.getElementById('parking-lot-container').style.display = 'none';
+            document.getElementById('parking-lot-text').value = ''; // 清空上一次的雜念
+            
+            showPage('game-ui');
         }
 
-        function updateTaskDetail() {
-            const task = tours[currentTourIndex].tasks[document.getElementById('task-selector').value];
-            document.getElementById('task-detail-info').innerText = `截止：${task.date || '未設定'} | 難度：${task.diff} 星`;
+        function startTimer() { 
+            playTheLick();
+            document.getElementById('action-btns').style.display = 'none'; 
+            document.getElementById('working-btns').style.display = 'flex'; 
+            document.getElementById('parking-lot-container').style.display = 'block'; // 開始計時才顯示停車場
+            
+            timerInterval = setInterval(() => { 
+                timeLeft--; updateTimerDisplay(); 
+                if(timeLeft <= 0) endPerformance(); // 時間到自動進入結算
+            }, 1000); 
         }
 
-        // 計時器邏輯
-        function startWork() {
-            document.getElementById('idle-btns').style.display = 'none';
-            document.getElementById('working-btns').style.display = 'block';
-            timerInterval = setInterval(() => {
-                timeLeft--;
-                updateDisplay();
-                if(timeLeft <= 0) finishWork(true);
+        // ================= 新增：結算與休息系統 =================
+        
+        function endPerformance() {
+            clearInterval(timerInterval);
+            playTheLick();
+            
+            // 將「靈感停車場」的內容自動帶入「演出筆記」的前綴
+            const parkingNotes = document.getElementById('parking-lot-text').value;
+            const reportNotes = document.getElementById('report-notes');
+            if(parkingNotes.trim() !== '') {
+                reportNotes.value = `【側台靈感】\n${parkingNotes}\n\n【演出心得】\n`;
+            } else {
+                reportNotes.value = '';
+            }
+            
+            // 進入回報表單
+            showPage('report-ui');
+        }
+
+        function saveReportData() {
+            const groove = document.getElementById('report-groove').value;
+            const progress = document.getElementById('report-progress').value;
+            const notes = document.getElementById('report-notes').value;
+            const taskName = document.getElementById('playing-subtask-name').innerText;
+            
+            // 這裡建構了完整的資料包，準備好送給 Google Docs！
+            const reportData = {
+                time: new Date().toLocaleString(),
+                tourName: tours[currentTourIndex].name,
+                categoryZone: tours[currentTourIndex].categories[currentCatIndex].zone,
+                task: taskName,
+                groove: groove,
+                progress: progress,
+                notes: notes
+            };
+            
+            // 暫時存入 localStorage 供測試 (未來改為 Google API)
+            let h = JSON.parse(localStorage.getItem('jazzGigHistory')) || [];
+            h.unshift(reportData);
+            localStorage.setItem('jazzGigHistory', JSON.stringify(h));
+        }
+
+        function saveReportAndReturn() {
+            saveReportData();
+            showPage('detail-setup');
+        }
+
+        function saveReportAndRest() {
+            saveReportData();
+            // 進入 Take Five 休息室
+            restTimeLeft = 5 * 60;
+            updateRestDisplay();
+            showPage('rest-ui');
+            
+            restInterval = setInterval(() => {
+                restTimeLeft--;
+                updateRestDisplay();
+                if(restTimeLeft <= 0) {
+                    clearInterval(restInterval);
+                    playTheLick(); // 休息結束的音效
+                    alert("Take Five 結束！準備回到舞台！");
+                    showPage('detail-setup');
+                }
             }, 1000);
         }
 
-        function finishWork(success) {
-            clearInterval(timerInterval);
-            if(success) {
-                playTheLick();
-                const task = tours[currentTourIndex].tasks[document.getElementById('task-selector').value];
-                let report = prompt("這段 Session 的演出心得：");
-                if(!report) report = "演出順利完成。";
-                saveRecord(task.name, report);
-            }
-            timeLeft = 25 * 60; updateDisplay();
-            document.getElementById('idle-btns').style.display = 'block';
-            document.getElementById('working-btns').style.display = 'none';
+        function endRestEarly() {
+            clearInterval(restInterval);
+            showPage('detail-setup');
         }
 
-        function updateDisplay() {
-            let m = Math.floor(timeLeft / 60), s = timeLeft % 60;
-            document.getElementById('timer-display').innerText = `${m<10?'0'+m:m}:${s<10?'0'+s:s}`;
-        }
-
-        function saveRecord(task, report) {
-            let h = JSON.parse(localStorage.getItem('jazzHistory')) || [];
-            h.unshift({ time: new Date().toLocaleString(), task, report });
-            localStorage.setItem('jazzHistory', JSON.stringify(h));
-            loadHistory();
-        }
-
-        function loadHistory() {
-            const container = document.getElementById('history-list');
-            container.innerHTML = '';
-            const h = JSON.parse(localStorage.getItem('jazzHistory')) || [];
-            h.forEach(item => {
-                const div = document.createElement('div');
-                div.style.borderBottom = "1px dashed #444"; div.style.padding = "10px 0";
-                div.innerHTML = `<small style="color:#888;">${item.time}</small><br><b style="color:#ffff00;">${item.task}</b>: ${item.report}`;
-                container.appendChild(div);
-            });
-        }
-
-        function decodeJwtResponse(token) {
-            let base64 = token.split('.')[1].replace(/-/g, '+').replace(/_/g, '/');
-            return JSON.parse(decodeURIComponent(window.atob(base64).split('').map(c => '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2)).join('')));
-        }
-
-        loadHistory();
+        function updateTimerDisplay() { let m = Math.floor(timeLeft / 60), s = timeLeft % 60; document.getElementById('timer-display').innerText = `${m<10?'0'+m:m}:${s<10?'0'+s:s}`; }
+        function updateRestDisplay() { let m = Math.floor(restTimeLeft / 60), s = restTimeLeft % 60; document.getElementById('rest-timer-display').innerText = `${m<10?'0'+m:m}:${s<10?'0'+s:s}`; }
+        
+        function saveData() { localStorage.setItem('jazzToursData', JSON.stringify(tours)); }
     </script>
 </body>
 </html>
