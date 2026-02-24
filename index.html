@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>爵士樂大師之路 v10.0 - 極致演出回報</title>
+    <title>爵士樂大師之路 v10.1 - 豐富沙盒版</title>
     <script src="https://accounts.google.com/gsi/client" async defer></script>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=DotGothic16&display=swap');
@@ -103,9 +103,50 @@
         <div id="tavern-map"></div>
         <div style="margin-top:20px; background:#111; padding:15px; border:1px solid #333;">
             <div style="display:flex; gap:5px; flex-wrap:wrap;">
-                <input type="text" id="category-input" placeholder="大項目名稱..." style="flex:2;">
-                <select id="category-icon" style="flex:1;"><option value="🎷">🎷 薩克斯風</option><option value="🎸">🎸 吉他</option><option value="🥃">🥃 威士忌</option><option value="📻">📻 收音機</option></select>
-                <select id="category-zone" style="flex:1;"><option value="舞台 Stage">舞台</option><option value="吧檯 Bar">吧檯</option><option value="後台 Backstage">後台</option></select>
+                <input type="text" id="category-input" placeholder="大項目名稱..." style="flex:2; min-width:150px;">
+                
+                <select id="category-icon" style="flex:1; min-width:130px;">
+                    <optgroup label="樂器 (Instruments)">
+                        <option value="🎷">🎷 薩克斯風</option>
+                        <option value="🎺">🎺 小號</option>
+                        <option value="🎸">🎸 吉他</option>
+                        <option value="🎹">🎹 鋼琴</option>
+                        <option value="🥁">🥁 爵士鼓</option>
+                        <option value="🎤">🎤 麥克風</option>
+                        <option value="🎻">🎻 低音提琴</option>
+                    </optgroup>
+                    <optgroup label="家具與設備 (Gear)">
+                        <option value="🛋️">🛋️ 復古沙發</option>
+                        <option value="🪑">🪑 高腳椅</option>
+                        <option value="📻">📻 收音機</option>
+                        <option value="💡">💡 聚光燈</option>
+                        <option value="🕰️">🕰️ 老時鐘</option>
+                        <option value="☎️">☎️ 復古電話</option>
+                        <option value="🗄️">🗄️ 檔案櫃</option>
+                    </optgroup>
+                    <optgroup label="酒水與餐飲 (Drinks)">
+                        <option value="🥃">🥃 威士忌</option>
+                        <option value="🍺">🍺 精釀啤酒</option>
+                        <option value="🍷">🍷 紅酒</option>
+                        <option value="🍸">🍸 馬丁尼</option>
+                        <option value="☕">☕ 黑咖啡</option>
+                        <option value="🍽️">🍽️ 下酒菜</option>
+                    </optgroup>
+                    <optgroup label="氣氛 (Vibe)">
+                        <option value="🎶">🎶 漂浮音符</option>
+                        <option value="✨">✨ 靈感火花</option>
+                        <option value="🔥">🔥 熱烈討論</option>
+                    </optgroup>
+                </select>
+
+                <select id="category-zone" style="flex:1; min-width:100px;">
+                    <option value="舞台 Stage">舞台</option>
+                    <option value="吧檯 Bar">吧檯</option>
+                    <option value="鋼琴區 Piano">鋼琴區</option>
+                    <option value="觀眾席 Lounge">觀眾席</option>
+                    <option value="後台 Backstage">後台</option>
+                    <option value="入口 Entrance">入口</option>
+                </select>
                 <button onclick="addCategory()" class="btn" style="flex:1; margin-top:0; background:#d4af37; color:#000;">放置</button>
             </div>
         </div>
@@ -134,7 +175,7 @@
         
         <div id="parking-lot-container">
             <label style="color:#55ffff; font-size:14px;">💭 側台備忘錄 (靈感停車場)：</label>
-            <p style="font-size:10px; color:#888; margin:0 0 5px 0;">腦中突然冒出與當下無關的雜事、靈感先丟這，清空大腦繼續演奏！</p>
+            <p style="font-size:10px; color:#888; margin:0 0 5px 0;">腦中突然冒出與當下無關的雜事先丟這，清空大腦繼續演奏！</p>
             <textarea id="parking-lot-text" rows="3" placeholder="例如：記得回信給主辦單位..."></textarea>
         </div>
 
@@ -188,7 +229,6 @@
         let currentTourIndex = -1; let currentCatIndex = -1; let tempLoc = null;
         let timerInterval, timeLeft = 25 * 60;
         let restInterval, restTimeLeft = 5 * 60;
-        const tavernZones = ["舞台 Stage", "酒吧 Bar", "鋼琴區 Piano", "觀眾席 Lounge", "後台 Backstage"];
 
         function playTheLick() { try { const ctx = new (window.AudioContext || window.webkitAudioContext)(); const now = ctx.currentTime; const notes = [{f:293.66,d:0.15},{f:329.63,d:0.15},{f:349.23,d:0.15},{f:392,d:0.15},{f:329.63,d:0.3},{f:261.63,d:0.15},{f:293.66,d:0.5}]; let start = now; notes.forEach(n => { const o = ctx.createOscillator(); const g = ctx.createGain(); o.type = 'triangle'; o.frequency.setValueAtTime(n.f, start); g.gain.setValueAtTime(0, start); g.gain.linearRampToValueAtTime(0.1, start+0.05); g.gain.linearRampToValueAtTime(0, start+n.d); o.connect(g); g.connect(ctx.destination); o.start(start); o.stop(start+n.d); start += n.d; }); } catch(e) {} }
         
@@ -196,7 +236,7 @@
         function fastEnter() { playTheLick(); showWorldMap(); }
         function showPage(id) { document.querySelectorAll('.page').forEach(p => p.classList.remove('active')); document.getElementById(id).classList.add('active'); }
 
-        /* 地圖邏輯 (省略與 v9.6 完全相同的函數，只列出核心調用) */
+        /* 地圖邏輯 */
         function showWorldMap() { showPage('tour-setup'); renderWorldMap(); }
         function renderWorldMap() { const map = document.getElementById('world-map-picker'); document.querySelectorAll('.city-marker-saved').forEach(e => e.remove()); tours.forEach((tour, i) => { const m = document.createElement('div'); m.className = 'city-marker-saved'; m.style.left = tour.loc.x + '%'; m.style.top = tour.loc.y + '%'; m.innerHTML = `<span class="marker-label">${tour.name}</span>`; m.onclick = (e) => { e.stopPropagation(); enterExistingTour(i); }; map.appendChild(m); }); }
         function markNewLocation(e) { const map = document.getElementById('world-map-picker'); const rect = map.getBoundingClientRect(); const x = ((e.clientX - rect.left) / rect.width) * 100, y = ((e.clientY - rect.top) / rect.height) * 100; let m = document.getElementById('new-city-marker'); if(!m) { m = document.createElement('div'); m.id = 'new-city-marker'; m.className = 'city-marker-new'; map.appendChild(m); } m.style.left = x + '%'; m.style.top = y + '%'; tempLoc = { x: x.toFixed(1), y: y.toFixed(1) }; document.getElementById('tour-loc').value = `LAT:${tempLoc.y} / LON:${tempLoc.x}`; }
@@ -214,17 +254,14 @@
         function addSubtask() { const name = document.getElementById('subtask-name').value; if(!name) return alert("請輸入名稱"); tours[currentTourIndex].categories[currentCatIndex].subtasks.push({ name: name, imp: '⭐⭐⭐' }); saveData(); renderSubtaskList(); document.getElementById('subtask-name').value = ''; }
         function renderSubtaskList() { const container = document.getElementById('subtask-list-container'); container.innerHTML = ''; const tasks = tours[currentTourIndex].categories[currentCatIndex].subtasks; if(tasks.length===0){ container.innerHTML='<div style="color:#666;">無細項</div>'; return;} tasks.forEach((t, i) => { const div = document.createElement('div'); div.className = 'subtask-item'; div.innerHTML = `<div><b style="color:#fff;">${t.name}</b></div><button class="btn-small" onclick="enterGameUI(${i})">▶ 演出</button>`; container.appendChild(div); }); }
 
-        /* 工作區與新系統邏輯 */
+        /* 工作區與結算系統邏輯 */
         function enterGameUI(subIndex) {
             document.getElementById('playing-subtask-name').innerText = tours[currentTourIndex].categories[currentCatIndex].subtasks[subIndex].name;
             clearInterval(timerInterval); timeLeft = 25 * 60; updateTimerDisplay();
-            
-            // 顯示按鈕，隱藏停車場直到開始
             document.getElementById('action-btns').style.display = 'flex'; 
             document.getElementById('working-btns').style.display = 'none';
             document.getElementById('parking-lot-container').style.display = 'none';
-            document.getElementById('parking-lot-text').value = ''; // 清空上一次的雜念
-            
+            document.getElementById('parking-lot-text').value = '';
             showPage('game-ui');
         }
 
@@ -232,89 +269,37 @@
             playTheLick();
             document.getElementById('action-btns').style.display = 'none'; 
             document.getElementById('working-btns').style.display = 'flex'; 
-            document.getElementById('parking-lot-container').style.display = 'block'; // 開始計時才顯示停車場
-            
-            timerInterval = setInterval(() => { 
-                timeLeft--; updateTimerDisplay(); 
-                if(timeLeft <= 0) endPerformance(); // 時間到自動進入結算
-            }, 1000); 
+            document.getElementById('parking-lot-container').style.display = 'block';
+            timerInterval = setInterval(() => { timeLeft--; updateTimerDisplay(); if(timeLeft <= 0) endPerformance(); }, 1000); 
         }
-
-        // ================= 新增：結算與休息系統 =================
         
         function endPerformance() {
-            clearInterval(timerInterval);
-            playTheLick();
-            
-            // 將「靈感停車場」的內容自動帶入「演出筆記」的前綴
+            clearInterval(timerInterval); playTheLick();
             const parkingNotes = document.getElementById('parking-lot-text').value;
             const reportNotes = document.getElementById('report-notes');
-            if(parkingNotes.trim() !== '') {
-                reportNotes.value = `【側台靈感】\n${parkingNotes}\n\n【演出心得】\n`;
-            } else {
-                reportNotes.value = '';
-            }
-            
-            // 進入回報表單
+            if(parkingNotes.trim() !== '') { reportNotes.value = `【側台靈感】\n${parkingNotes}\n\n【演出心得】\n`; } else { reportNotes.value = ''; }
             showPage('report-ui');
         }
 
         function saveReportData() {
-            const groove = document.getElementById('report-groove').value;
-            const progress = document.getElementById('report-progress').value;
-            const notes = document.getElementById('report-notes').value;
-            const taskName = document.getElementById('playing-subtask-name').innerText;
-            
-            // 這裡建構了完整的資料包，準備好送給 Google Docs！
             const reportData = {
-                time: new Date().toLocaleString(),
-                tourName: tours[currentTourIndex].name,
-                categoryZone: tours[currentTourIndex].categories[currentCatIndex].zone,
-                task: taskName,
-                groove: groove,
-                progress: progress,
-                notes: notes
+                time: new Date().toLocaleString(), tourName: tours[currentTourIndex].name, categoryZone: tours[currentTourIndex].categories[currentCatIndex].zone,
+                task: document.getElementById('playing-subtask-name').innerText, groove: document.getElementById('report-groove').value,
+                progress: document.getElementById('report-progress').value, notes: document.getElementById('report-notes').value
             };
-            
-            // 暫時存入 localStorage 供測試 (未來改為 Google API)
-            let h = JSON.parse(localStorage.getItem('jazzGigHistory')) || [];
-            h.unshift(reportData);
-            localStorage.setItem('jazzGigHistory', JSON.stringify(h));
+            let h = JSON.parse(localStorage.getItem('jazzGigHistory')) || []; h.unshift(reportData); localStorage.setItem('jazzGigHistory', JSON.stringify(h));
         }
 
-        function saveReportAndReturn() {
-            saveReportData();
-            showPage('detail-setup');
-        }
-
+        function saveReportAndReturn() { saveReportData(); showPage('detail-setup'); }
         function saveReportAndRest() {
-            saveReportData();
-            // 進入 Take Five 休息室
-            restTimeLeft = 5 * 60;
-            updateRestDisplay();
-            showPage('rest-ui');
-            
-            restInterval = setInterval(() => {
-                restTimeLeft--;
-                updateRestDisplay();
-                if(restTimeLeft <= 0) {
-                    clearInterval(restInterval);
-                    playTheLick(); // 休息結束的音效
-                    alert("Take Five 結束！準備回到舞台！");
-                    showPage('detail-setup');
-                }
-            }, 1000);
+            saveReportData(); restTimeLeft = 5 * 60; updateRestDisplay(); showPage('rest-ui');
+            restInterval = setInterval(() => { restTimeLeft--; updateRestDisplay(); if(restTimeLeft <= 0) { clearInterval(restInterval); playTheLick(); alert("Take Five 結束！"); showPage('detail-setup'); } }, 1000);
         }
-
-        function endRestEarly() {
-            clearInterval(restInterval);
-            showPage('detail-setup');
-        }
-
+        function endRestEarly() { clearInterval(restInterval); showPage('detail-setup'); }
         function updateTimerDisplay() { let m = Math.floor(timeLeft / 60), s = timeLeft % 60; document.getElementById('timer-display').innerText = `${m<10?'0'+m:m}:${s<10?'0'+s:s}`; }
         function updateRestDisplay() { let m = Math.floor(restTimeLeft / 60), s = restTimeLeft % 60; document.getElementById('rest-timer-display').innerText = `${m<10?'0'+m:m}:${s<10?'0'+s:s}`; }
-        
         function saveData() { localStorage.setItem('jazzToursData', JSON.stringify(tours)); }
+        function decodeJwtResponse(t) { return JSON.parse(decodeURIComponent(window.atob(t.split('.')[1].replace(/-/g, '+').replace(/_/g, '/')).split('').map(c => '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2)).join(''))); }
     </script>
 </body>
 </html>
